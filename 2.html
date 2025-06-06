@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CIA // Molecular Duplication</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: #00ffcc;
+      font-family: 'Courier New', Courier, monospace;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .scanlines::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,255,204,0.05) 0px,
+        rgba(0,255,204,0.05) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      z-index: 9999;
+      pointer-events: none;
+      animation: scan 1s linear infinite;
+    }
+
+    @keyframes scan {
+      0% { background-position-y: 0; }
+      100% { background-position-y: 4px; }
+    }
+
+    .fade {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .fade.in {
+      opacity: 1;
+    }
+
+    .terminal,
+    #videoContainer,
+    #uploadScreen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      z-index: 10;
+      padding: 2em;
+      box-sizing: border-box;
+    }
+
+    .terminal.in,
+    #videoContainer.in,
+    #uploadScreen.in {
+      display: flex;
+    }
+
+    .terminal h1 {
+      font-size: 2em;
+      margin-bottom: 1em;
+      animation: flicker 1s infinite;
+    }
+
+    .terminal p {
+      font-size: 1em;
+      margin-bottom: 2em;
+    }
+
+    button,
+    #uploadBtn {
+      background: transparent;
+      border: 2px solid #00ffcc;
+      color: #00ffcc;
+      padding: 1em 2em;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: inherit;
+    }
+
+    button:hover,
+    #uploadBtn:hover {
+      background: #00ffcc;
+      color: black;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    #videoContainer video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #uploadBtn {
+      position: absolute;
+      bottom: 5vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 0.5em;
+      z-index: 20;
+    }
+
+    #uploadScreen h2 {
+      font-size: 2em;
+      margin-bottom: 1em;
+      animation: flicker 0.8s infinite;
+    }
+
+    .progress-bar {
+      width: 80%;
+      max-width: 400px;
+      height: 16px;
+      border: 1px solid #00ffcc;
+      margin-top: 1em;
+      position: relative;
+    }
+
+    .progress-fill {
+      background: #00ffcc;
+      height: 100%;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .status-msg {
+      margin-top: 0.5em;
+      font-size: 1em;
+    }
+
+    @media (max-width: 600px) {
+      .terminal h1,
+      #uploadScreen h2 {
+        font-size: 1.4em;
+      }
+
+      button,
+      #uploadBtn {
+        padding: 0.8em 1.2em;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body class="scanlines">
+
+  <div class="terminal fade in" id="terminalScreen">
+    <h1>🔐 CIA // MOLECULAR DUPLICATION INTERFACE</h1>
+    <p>Remote Additive Reconstruction Node - Blacksite 9</p>
+    <button onclick="launchSequence()">INITIATE SEQUENCE</button>
+  </div>
+
+  <div id="videoContainer" class="fade">
+    <video id="vid" playsinline>
+      <source src="https://i.imgur.com/CoQZz5B.mp4" type="video/mp4" />
+    </video>
+    <button id="uploadBtn" onclick="startUpload()">📡 UPLOAD TO FIELD PRINTER</button>
+  </div>
+
+  <div id="uploadScreen" class="fade">
+    <h2>📠 DEPLOYING MODEL TO PRINTER NODE...</h2>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="status-msg" id="statusMsg">0%</div>
+  </div>
+
+  <audio id="printerSound" src="https://www.soundjay.com/mechanical/printer-1.mp3"></audio>
+
+  <script>
+    const terminal = document.getElementById("terminalScreen");
+    const videoContainer = document.getElementById("videoContainer");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const uploadScreen = document.getElementById("uploadScreen");
+    const video = document.getElementById("vid");
+    const sound = document.getElementById("printerSound");
+
+    function launchSequence() {
+      terminal.classList.remove("in");
+      terminal.classList.add("fade");
+      setTimeout(() => {
+        terminal.style.display = "none";
+        videoContainer.style.display = "flex";
+        setTimeout(() => videoContainer.classList.add("in"), 100);
+        video.currentTime = 0;
+        video.play();
+      }, 1000);
+    }
+
+    video.addEventListener("ended", () => {
+      setTimeout(() => {
+        uploadBtn.style.display = "flex";
+        uploadBtn.classList.add("fade", "in");
+      }, 300);
+    });
+
+    function startUpload() {
+      videoContainer.classList.remove("in");
+      uploadBtn.style.display = "none";
+      setTimeout(() => {
+        videoContainer.style.display = "none";
+        uploadScreen.style.display = "flex";
+        setTimeout(() => uploadScreen.classList.add("in"), 100);
+        simulateUpload();
+      }, 1000);
+    }
+
+    function simulateUpload() {
+      const fill = document.getElementById("progressFill");
+      const status = document.getElementById("statusMsg");
+      let percent = 0;
+      sound.play();
+      const interval = setInterval(() => {
+        percent += Math.random() * 5;
+        if (percent >= 100) {
+          percent = 100;
+          clearInterval(interval);
+          status.innerText = "✅ PRINT SEQUENCE COMPLETE";
+        } else {
+          status.innerText = `${Math.floor(percent)}%`;
+        }
+        fill.style.width = `${percent}%`;
+      }, 150);
+    }
+  </script>
+</body>
+</html>
